@@ -1,6 +1,6 @@
-const mongoose = require("mangoose");
+const mongoose = require("mongoose");
 
-const userSchema = mangoose.Schema({
+const userSchema = mongoose.Schema({
   email: {
     type: String,
     require: true,
@@ -32,7 +32,7 @@ const userSchema = mangoose.Schema({
   },
   role: {
     type: Number,
-    defalt: 0,
+    default: 0,
   },
   token: {
     type: String,
