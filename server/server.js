@@ -17,9 +17,80 @@ app.use(cookieParser());
 
 //Models
 const { User } = require("./models/user");
+const { Brand } = require("./models/brand");
+const { Wood } = require("./models/wood");
+const { Product } = require("./models/product");
 
 //Middleware
 const { auth } = require("./middleware/auth");
+const { admin } = require("./middleware/admin");
+// const { request } = require("express");
+
+//========== PRODUCTS ===========
+app.post("/api/product/article", auth, admin, (req, res) => {
+  const product = new Product(req.body);
+
+  product.save((err, doc) => {
+    if (err) return res.json({ success: false, err });
+
+    res.status(200).json({
+      success: true,
+      article: doc,
+    });
+  });
+});
+
+app.get("/api/product/articles", (req, res) => {
+  Product.find({}, (err, product) => {
+    if (err) return res.status(400).send(err);
+
+    res.status(200).send(product);
+  });
+});
+//========== WOODS ===========
+
+app.post("/api/product/wood", auth, admin, (req, res) => {
+  const wood = new Wood(req.body);
+
+  wood.save((err, doc) => {
+    if (err) return res.json({ success: false, err });
+
+    res.status(200).json({
+      success: true,
+      wood: doc,
+    });
+  });
+});
+
+app.get("/api/product/woods", (req, res) => {
+  Wood.find({}, (err, woods) => {
+    if (err) return res.status(400).send(err);
+
+    res.status(200).send(woods);
+  });
+});
+
+//========== BRAND ===========
+
+app.post("/api/product/brand", auth, admin, (req, res) => {
+  const brand = new Brand(req.body);
+
+  brand.save((err, doc) => {
+    if (err) return res.json({ success: false, err });
+    res.status(200).json({
+      success: true,
+      brand: doc,
+    });
+  });
+});
+
+app.get("/api/product/brands", (req, res) => {
+  Brand.find({}, (err, brands) => {
+    if (err) return res.status(400).send(err);
+
+    res.status(200).send(brands);
+  });
+});
 
 //========== USER ===========
 
@@ -62,13 +133,21 @@ app.post("/api/users/login", (req, res) => {
         return res.json({ loginSuccess: false, message: "Wrong password" });
 
       //generate token
-
       user.generateToken((err, user) => {
         if (err) return res.status(400).send(err);
         res.cookie("w_auth", user.token).status(200).json({
           loginSuccess: true,
         });
       });
+    });
+  });
+});
+
+app.get("/api/user/logout", auth, (req, res) => {
+  User.findOneAndUpdate({ _id: req.user._id }, { token: "" }, (err, doc) => {
+    if (err) return res.json({ success: false, err });
+    return res.status(200).send({
+      success: true,
     });
   });
 });
