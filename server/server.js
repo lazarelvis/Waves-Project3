@@ -27,6 +27,50 @@ const { admin } = require("./middleware/admin");
 // const { request } = require("express");
 
 //========== PRODUCTS ===========
+
+//BY ARIVAL
+// /articles?sortBy=createdAt&order=desc&limit=4
+app.get("/api/product/articles", (req, res) => {
+  let order = req.query.order ? req.query.order : "asc";
+  let sortBy = req.query.sortBy ? req.query.sortBy : "_id";
+  let limit = req.query.limit ? parseInt(req.query.limit) : 100;
+
+  Product.find()
+    .populate("brand")
+    .populate("wood")
+    .sort([[sortBy, order]])
+    .limit(limit)
+    .exec((err, articles) => {
+      if (err) return res.status(400).send(err);
+      res.send(articles);
+    });
+});
+
+//BY SELL
+// /articles?sortBy=sold&order=desc&limit=4
+
+//query string = /api/product/article?id=value,value,value&type=array/single
+app.get("/api/product/articles_by_id", (req, res) => {
+  let type = req.query.type;
+  let items = req.query.id;
+
+  if (type === "array") {
+    let ids = req.query.id.split(",");
+    items = [];
+    items = ids.map((item) => {
+      return mongoose.Types.ObjectId(item); // it will push id but converted to object
+    });
+  }
+
+  Product.find({ _id: { $in: items } })
+    .populate("brand")
+    .populate("wood")
+    .exec((err, docs) => {
+      return res.status(200).send(docs);
+    });
+  //single value or an array can take
+});
+
 app.post("/api/product/article", auth, admin, (req, res) => {
   const product = new Product(req.body);
 
@@ -40,13 +84,6 @@ app.post("/api/product/article", auth, admin, (req, res) => {
   });
 });
 
-app.get("/api/product/articles", (req, res) => {
-  Product.find({}, (err, product) => {
-    if (err) return res.status(400).send(err);
-
-    res.status(200).send(product);
-  });
-});
 //========== WOODS ===========
 
 app.post("/api/product/wood", auth, admin, (req, res) => {
