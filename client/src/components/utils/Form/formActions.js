@@ -8,6 +8,14 @@ export const validate = (element, formdata = []) => {
     error = !valid ? [valid, message] : error;
   }
 
+  if (element.validation.confirm) {
+    const valid =
+      element.value.trim() === formdata[element.validation.confirm].value;
+    const message = `${!valid ? "Password do not match" : ""}`;
+
+    error = !valid ? [valid, message] : error;
+  }
+
   if (element.validation.required) {
     const valid = element.value.trim() !== "";
     const message = `${!valid ? "This field is required" : ""}`;
@@ -20,15 +28,16 @@ export const validate = (element, formdata = []) => {
 
 export const update = (element, formdata, formName) => {
   const newFormdata = {
-    ...formdata,
+    ...formdata, //email, password etc.
   };
 
   const newElement = {
-    ...newFormdata[element.id],
+    ...newFormdata[element.id], //email state is passing
   };
 
   newElement.value = element.event.target.value;
-
+  //input value
+  //touched is false if is true element.blur is true
   if (element.blur) {
     let validData = validate(newElement, formdata);
     newElement.valid = validData[0];
@@ -45,12 +54,16 @@ export const generateData = (formdata, formName) => {
   let dataToSubmit = {};
 
   for (let key in formdata) {
-    dataToSubmit[key] = formdata[key].value;
+    if (key !== "confirmPassword") {
+      //[key] in this case is email or password
+      dataToSubmit[key] = formdata[key].value;
+    }
   }
 
   return dataToSubmit;
 };
 
+//if the form is valid can reach the next step
 export const isFormValid = (formdata, formName) => {
   let formIsValid = true;
 
