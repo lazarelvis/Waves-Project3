@@ -33,7 +33,7 @@ const HomePromotion = (props) => {
       </div>
     ) : null;
 
-  return <div className="home_promition">{renderPromotion()}</div>;
+  return <div className="home_promotion">{renderPromotion()}</div>;
 };
 
 export default HomePromotion;
