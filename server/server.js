@@ -10,7 +10,9 @@ const async = require("async");
 require("dotenv").config(); //by "dotenv": "^6.0.0"
 
 mongoose.Promise = global.Promise;
-mongoose.connect(process.env.DATABASE);
+mongoose.connect(process.env.MONGODB_URI);
+
+app.user(express.static("client/build"));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -35,6 +37,7 @@ const { Site } = require("./models/site");
 const { auth } = require("./middleware/auth");
 const { admin } = require("./middleware/admin");
 const { resource_types } = require("cloudinary/lib/api");
+const payment = require("./models/payment");
 // const { request } = require("express");
 // const { default: user } = require("../client/src/hoc/user");
 // const { request } = require("express");
@@ -451,6 +454,14 @@ app.post("/api/site/site_data"),
       }
     );
   };
+
+//default case
+if (process.env.NODE_ENV === "production") {
+  const path = required("path");
+  app.get("/*", (req, res) => {
+    res.sendfile(path.resolve(__dirname, "../client", "build", "index.html"));
+  });
+}
 
 const port = process.env.PORT || 3002;
 
